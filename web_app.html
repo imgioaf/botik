@@ -1,847 +1,150 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Switzerbot Wallet</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    :root {
-      --bg-dark: #070a12;
-      --glass-card: rgba(18, 24, 38, 0.65);
-      --glass-border: rgba(255, 255, 255, 0.08);
-      --glass-border-hover: rgba(255, 255, 255, 0.18);
-      --accent-liquid: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
-      --accent-blue: #3b82f6;
-      --accent-green: #10b981;
-      --accent-red: #f43f5e;
-      --text-main: #f8fafc;
-      --text-sub: #94a3b8;
-      --blur-size: blur(20px);
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Mini App</title>
+    <!-- 1. Подключение Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <style>
+        /* Темный стеклянный UI (Glassmorphism) */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --text-color: #f8fafc;
+            --accent-color: #6366f1;
+        }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    body {
-      background-color: var(--bg-dark);
-      background-image: 
-        radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.18) 0%, transparent 45%),
-        radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.15) 0%, transparent 45%);
-      background-attachment: fixed;
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 12px;
-    }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-    .app-shell {
-      width: 100%;
-      max-width: 440px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      padding-bottom: 80px; /* Запас под нижнюю навигацию */
-    }
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 24px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            text-align: center;
+        }
 
-    /* --- ШАПКА ПОЛЬЗОВАТЕЛЯ --- */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 4px;
-    }
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
 
-    .user-profile {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+        p {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            margin-bottom: 24px;
+        }
 
-    .avatar-wrapper {
-      position: relative;
-    }
+        .btn {
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.8) 0%, rgba(168, 85, 247, 0.8) 100%);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-bottom: 12px;
+        }
 
-    .avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: var(--accent-liquid);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 1.1rem;
-      color: #fff;
-      box-shadow: 0 4px 16px rgba(168, 85, 247, 0.3);
-    }
+        .btn:active {
+            transform: scale(0.98);
+        }
 
-    .user-details .name {
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+        }
 
-    .user-details .badge {
-      font-size: 0.72rem;
-      color: #38bdf8;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .network-tag {
-      font-size: 0.7rem;
-      padding: 4px 10px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--glass-border);
-      border-radius: 20px;
-      color: var(--text-sub);
-    }
-
-    /* --- КАРТОЧКА БАЛАНСА --- */
-    .main-balance-card {
-      background: var(--glass-card);
-      backdrop-filter: var(--blur-size);
-      -webkit-backdrop-filter: var(--blur-size);
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      padding: 24px;
-      text-align: center;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .main-balance-card::before {
-      content: '';
-      position: absolute;
-      top: -50%; left: -50%;
-      width: 200%; height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 60%);
-      pointer-events: none;
-    }
-
-    .balance-label {
-      font-size: 0.8rem;
-      color: var(--text-sub);
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-      margin-bottom: 6px;
-    }
-
-    .balance-amount {
-      font-size: 2.6rem;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      background: linear-gradient(180deg, #ffffff 0%, #94a3b8 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 12px;
-    }
-
-    .balance-sub {
-      font-size: 0.85rem;
-      color: var(--accent-green);
-      font-weight: 500;
-    }
-
-    /* --- КНОПКИ ДЕЙСТВИЙ --- */
-    .action-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-    }
-
-    .action-btn {
-      background: var(--glass-card);
-      backdrop-filter: var(--blur-size);
-      border: 1px solid var(--glass-border);
-      border-radius: 18px;
-      padding: 14px 8px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .action-btn:active {
-      transform: scale(0.94);
-      border-color: var(--glass-border-hover);
-    }
-
-    .action-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-    }
-
-    .act-deposit { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
-    .act-withdraw { background: rgba(244, 63, 94, 0.15); color: var(--accent-red); }
-    .act-swap { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
-    .act-transfer { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
-
-    .action-title {
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--text-main);
-    }
-
-    /* --- ВАШИ АКТИВЫ --- */
-    .section-header {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text-sub);
-      margin: 8px 4px -4px 4px;
-    }
-
-    .asset-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .asset-card {
-      background: var(--glass-card);
-      backdrop-filter: var(--blur-size);
-      border: 1px solid var(--glass-border);
-      border-radius: 18px;
-      padding: 14px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .asset-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .asset-icon {
-      width: 38px;
-      height: 38px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.05);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-    }
-
-    .asset-names .name { font-weight: 600; font-size: 0.95rem; }
-    .asset-names .sub { font-size: 0.75rem; color: var(--text-sub); }
-
-    .asset-values {
-      text-align: right;
-    }
-
-    .asset-values .val { font-weight: 600; font-size: 0.95rem; }
-    .asset-values .eq { font-size: 0.75rem; color: var(--text-sub); }
-
-    /* --- НИЖНЯЯ НАВИГАЦИЯ (TABS) --- */
-    .bottom-nav {
-      position: fixed;
-      bottom: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: calc(100% - 24px);
-      max-width: 416px;
-      background: rgba(15, 21, 36, 0.85);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      padding: 6px;
-      display: flex;
-      justify-content: space-around;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      z-index: 90;
-    }
-
-    .nav-item {
-      flex: 1;
-      padding: 8px 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      color: var(--text-sub);
-      cursor: pointer;
-      border-radius: 18px;
-      transition: all 0.2s;
-    }
-
-    .nav-item.active {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    .nav-icon { font-size: 1.1rem; }
-    .nav-label { font-size: 0.7rem; font-weight: 500; }
-
-    /* --- ТАБЫ КОНТЕНТА --- */
-    .tab-content {
-      display: none;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .tab-content.active {
-      display: flex;
-    }
-
-    /* --- ИНТЕРАКТИВНЫЙ ОБМЕННИК (SWAP) --- */
-    .swap-box {
-      background: var(--glass-card);
-      border: 1px solid var(--glass-border);
-      border-radius: 20px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .swap-input-group {
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid var(--glass-border);
-      border-radius: 14px;
-      padding: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .swap-input-group input {
-      background: transparent;
-      border: none;
-      color: #fff;
-      font-size: 1.2rem;
-      font-weight: 600;
-      outline: none;
-      width: 60%;
-    }
-
-    .swap-divider {
-      text-align: center;
-      margin: -6px 0;
-      font-size: 1.2rem;
-      color: var(--accent-blue);
-    }
-
-    /* --- УНИВЕРСАЛЬНЫЕ МОДАЛЬНЫЕ ОКНА --- */
-    .modal-backdrop {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(10px);
-      display: none;
-      justify-content: center;
-      align-items: flex-end;
-      z-index: 100;
-    }
-
-    .modal-backdrop.active {
-      display: flex;
-    }
-
-    .modal-window {
-      background: #0f172a;
-      border: 1px solid var(--glass-border);
-      border-radius: 28px 28px 0 0;
-      width: 100%;
-      max-width: 440px;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      animation: modalSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    @keyframes modalSlide {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
-    }
-
-    .modal-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .modal-head title { font-size: 1.1rem; font-weight: 700; }
-
-    .modal-close {
-      background: rgba(255, 255, 255, 0.1);
-      border: none;
-      color: #fff;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      cursor: pointer;
-    }
-
-    .form-input {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--glass-border);
-      padding: 14px 16px;
-      border-radius: 14px;
-      color: #fff;
-      font-size: 1rem;
-      outline: none;
-    }
-
-    .form-input:focus {
-      border-color: var(--accent-blue);
-    }
-
-    .btn-submit {
-      background: var(--accent-liquid);
-      color: #fff;
-      border: none;
-      padding: 16px;
-      border-radius: 16px;
-      font-weight: 600;
-      font-size: 1rem;
-      cursor: pointer;
-      box-shadow: 0 4px 20px rgba(168, 85, 247, 0.3);
-    }
-
-    .btn-submit:active { transform: scale(0.98); }
-
-    /* История транзакций */
-    .history-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 16px;
-      background: var(--glass-card);
-      border: 1px solid var(--glass-border);
-      border-radius: 14px;
-    }
-
-    .tx-type { font-weight: 600; font-size: 0.9rem; }
-    .tx-date { font-size: 0.75rem; color: var(--text-sub); }
-    .tx-amount-plus { color: var(--accent-green); font-weight: 600; }
-    .tx-amount-minus { color: var(--accent-red); font-weight: 600; }
-  </style>
+        #status {
+            margin-top: 16px;
+            font-size: 0.9rem;
+            color: #38bdf8;
+            word-break: break-word;
+        }
+    </style>
 </head>
 <body>
 
-  <div class="app-shell">
-    
-    <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
-    <div class="header">
-      <div class="user-profile">
-        <div class="avatar-wrapper">
-          <div class="avatar" id="userAvatar">S</div>
-        </div>
-        <div class="user-details">
-          <div class="name" id="userName">User</div>
-          <div class="badge">● Switzerbot Core</div>
-        </div>
-      </div>
-      <div class="network-tag">TON Network</div>
+    <div class="glass-card">
+        <h1 id="user-greeting">Привет 👋</h1>
+        <p>Нажимай на кнопки ниже — приложение больше не будет закрываться само по себе.</p>
+
+        <!-- type="button" предотвращает отправку формы и перезагрузку страницы -->
+        <button type="button" class="btn" id="action-btn">Выполнить действие</button>
+        <button type="button" class="btn btn-secondary" id="close-btn">Закрыть приложение</button>
+
+        <div id="status"></div>
     </div>
 
-    <!-- ВКЛАДКА 1: КОШЕЛЕК (ГЛАВНАЯ) -->
-    <div id="tab-wallet" class="tab-content active">
-      
-      <!-- Карточка общего баланса -->
-      <div class="main-balance-card">
-        <div class="balance-label">Общий баланс</div>
-        <div class="balance-amount" id="displayTotalBalance">$0.00</div>
-        <div class="balance-sub">▲ +3.4% за сегодня</div>
-      </div>
+    <script>
+        // Инициализация Telegram WebApp
+        const tg = window.Telegram?.WebApp;
 
-      <!-- Быстрые действия -->
-      <div class="action-row">
-        <div class="action-btn" onclick="openModal('deposit')">
-          <div class="action-icon act-deposit">📥</div>
-          <span class="action-title">Пополнить</span>
-        </div>
-        <div class="action-btn" onclick="openModal('withdraw')">
-          <div class="action-icon act-withdraw">📤</div>
-          <span class="action-title">Вывести</span>
-        </div>
-        <div class="action-btn" onclick="switchTab('swap')">
-          <div class="action-icon act-swap">🔄</div>
-          <span class="action-title">Обмен</span>
-        </div>
-        <div class="action-btn" onclick="openModal('transfer')">
-          <div class="action-icon act-transfer">✈️</div>
-          <span class="action-title">Перевод</span>
-        </div>
-      </div>
+        if (tg) {
+            // Оповещаем Telegram, что приложение полностью загрузилось
+            tg.ready();
+            // Раскрываем окно Mini App на всю высоту экрана
+            tg.expand();
 
-      <!-- Список Активов -->
-      <div class="section-header">Активы</div>
-      <div class="asset-list">
-        
-        <div class="asset-card">
-          <div class="asset-info">
-            <div class="asset-icon">💵</div>
-            <div class="asset-names">
-              <div class="name">Tether USDT</div>
-              <div class="sub">USDT (TRC-20)</div>
-            </div>
-          </div>
-          <div class="asset-values">
-            <div class="val" id="assetUSDT">0.00 USDT</div>
-            <div class="eq" id="assetUSDTEq">$0.00</div>
-          </div>
-        </div>
+            // Если доступна информация о пользователе
+            const user = tg.initDataUnsafe?.user;
+            if (user) {
+                document.getElementById('user-greeting').innerText = `Привет, ${user.first_name}! 👋`;
+            }
+        }
 
-        <div class="asset-card">
-          <div class="asset-info">
-            <div class="asset-icon">💎</div>
-            <div class="asset-names">
-              <div class="name">Toncoin</div>
-              <div class="sub">TON Native</div>
-            </div>
-          </div>
-          <div class="asset-values">
-            <div class="val" id="assetTON">0.00 TON</div>
-            <div class="eq" id="assetTONEq">$0.00</div>
-          </div>
-        </div>
+        // Обработчик основной кнопки (НЕ закрывает приложение)
+        document.getElementById('action-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
 
-      </div>
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerText = "✅ Действие выполнено! Окно осталась открытым.";
 
-    </div>
-
-    <!-- ВКЛАДКА 2: ОБМЕН (SWAP) -->
-    <div id="tab-swap" class="tab-content">
-      <div class="section-header">Быстрый обмен</div>
-      <div class="swap-box">
-        <div class="swap-input-group">
-          <div>
-            <div style="font-size:0.75rem; color:var(--text-sub);">Отдаете</div>
-            <input type="number" id="swapFromInput" placeholder="0.0" oninput="calculateSwap()">
-          </div>
-          <span style="font-weight:600;">USDT</span>
-        </div>
-
-        <div class="swap-divider">⬇️</div>
-
-        <div class="swap-input-group">
-          <div>
-            <div style="font-size:0.75rem; color:var(--text-sub);">Получаете (Курс 1 TON = 6.5 USDT)</div>
-            <input type="number" id="swapToInput" placeholder="0.0" readonly>
-          </div>
-          <span style="font-weight:600;">TON</span>
-        </div>
-
-        <button class="btn-submit" onclick="executeSwap()">Совершить обмен</button>
-      </div>
-    </div>
-
-    <!-- ВКЛАДКА 3: ИСТОРИЯ (HISTORY) -->
-    <div id="tab-history" class="tab-content">
-      <div class="section-header">История операций</div>
-      <div class="asset-list" id="historyList">
-        <!-- Заполняется динамически -->
-      </div>
-    </div>
-
-    <!-- ВКЛАДКА 4: НАСТРОЙКИ (SETTINGS) -->
-    <div id="tab-settings" class="tab-content">
-      <div class="section-header">Настройки системы</div>
-      <div class="asset-card" onclick="resetState()">
-        <div class="asset-info">
-          <div class="asset-icon">⚠️</div>
-          <div class="asset-names">
-            <div class="name" style="color:var(--accent-red)">Сбросить баланс</div>
-            <div class="sub">Восстановить исходное состояние</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- НИЖНЯЯ НАВИГАЦИЯ -->
-  <div class="bottom-nav">
-    <div class="nav-item active" onclick="switchTab('wallet', this)">
-      <div class="nav-icon">👛</div>
-      <div class="nav-label">Кошелек</div>
-    </div>
-    <div class="nav-item" onclick="switchTab('swap', this)">
-      <div class="nav-icon">🔄</div>
-      <div class="nav-label">Обмен</div>
-    </div>
-    <div class="nav-item" onclick="switchTab('history', this)">
-      <div class="nav-icon">📜</div>
-      <div class="nav-label">История</div>
-    </div>
-    <div class="nav-item" onclick="switchTab('settings', this)">
-      <div class="nav-icon">⚙️</div>
-      <div class="nav-label">Опции</div>
-    </div>
-  </div>
-
-  <!-- УНИВЕРСАЛЬНЫЙ МОДАЛЬНЫЙ ДИАЛОГ -->
-  <div class="modal-backdrop" id="modalBackdrop">
-    <div class="modal-window">
-      <div class="modal-head">
-        <span style="font-weight:700;" id="modalTitle">Заголовок</span>
-        <button class="modal-close" onclick="closeModal()">✕</button>
-      </div>
-      <div id="modalBody">
-        <!-- Контент вставляется через JS -->
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // --- 1. ЛОГИКА СОСТОЯНИЯ (STATE MANAGEMENT) ---
-    const TON_RATE = 6.5; // 1 TON = 6.5 USDT
-
-    const defaultState = {
-      usdt: 1500.00,
-      ton: 80.00,
-      transactions: [
-        { type: 'deposit', title: 'Пополнение USDT', amount: '+500.00 USDT', date: 'Сегодня, 14:20', isPlus: true },
-        { type: 'withdraw', title: 'Вывод TON', amount: '-10.00 TON', date: 'Вчера, 09:15', isPlus: false }
-      ]
-    };
-
-    let appState = JSON.parse(localStorage.getItem('switzer_state')) || defaultState;
-
-    function saveState() {
-      localStorage.setItem('switzer_state', JSON.stringify(appState));
-      renderUI();
-    }
-
-    function resetState() {
-      appState = JSON.parse(JSON.stringify(defaultState));
-      saveState();
-      triggerHaptic('notification', 'success');
-      alert('Данные кошелька сброшены!');
-    }
-
-    // --- 2. ИНИЦИАЛИЗА TELEGRAM WEBAPP ---
-    const tg = window.Telegram?.WebApp;
-    if (tg) {
-      tg.ready();
-      tg.expand();
-      if (tg.initDataUnsafe?.user) {
-        const u = tg.initDataUnsafe.user;
-        document.getElementById('userName').innerText = u.first_name || 'Пользователь';
-        document.getElementById('userAvatar').innerText = (u.first_name || 'S')[0].toUpperCase();
-      }
-    }
-
-    function triggerHaptic(type = 'impact', style = 'medium') {
-      if (!tg) return;
-      if (type === 'impact') tg.HapticFeedback?.impactOccurred(style);
-      if (type === 'notification') tg.HapticFeedback?.notificationOccurred(style);
-    }
-
-    // --- 3. ОБНОВЛЕНИЕ ИНТЕРФЕЙСА (RENDER) ---
-    function renderUI() {
-      const usdtEq = appState.usdt;
-      const tonEq = appState.ton * TON_RATE;
-      const totalUSD = usdtEq + tonEq;
-
-      document.getElementById('displayTotalBalance').innerText = '$' + totalUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      document.getElementById('assetUSDT').innerText = appState.usdt.toFixed(2) + ' USDT';
-      document.getElementById('assetUSDTEq').innerText = '$' + usdtEq.toFixed(2);
-      document.getElementById('assetTON').innerText = appState.ton.toFixed(2) + ' TON';
-      document.getElementById('assetTONEq').innerText = '$' + tonEq.toFixed(2);
-
-      // Отрисовка истории
-      const historyContainer = document.getElementById('historyList');
-      historyContainer.innerHTML = '';
-
-      if (appState.transactions.length === 0) {
-        historyContainer.innerHTML = '<div style="text-align:center; color:var(--text-sub); padding:20px;">История пуста</div>';
-      } else {
-        appState.transactions.forEach(tx => {
-          const item = document.createElement('div');
-          item.className = 'history-item';
-          item.innerHTML = `
-            <div>
-              <div class="tx-type">${tx.title}</div>
-              <div class="tx-date">${tx.date}</div>
-            </div>
-            <div class="${tx.isPlus ? 'tx-amount-plus' : 'tx-amount-minus'}">${tx.amount}</div>
-          `;
-          historyContainer.appendChild(item);
+            // Если нужно отправить данные на ваш бэкенд:
+            /*
+            fetch('https://ваш-сервер.com/api/do-something', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ initData: tg.initData })
+            });
+            */
         });
-      }
-    }
 
-    // --- 4. ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ---
-    function switchTab(tabId, el) {
-      triggerHaptic('impact', 'light');
-      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-
-      document.getElementById('tab-' + tabId).classList.add('active');
-
-      if (el) {
-        el.classList.add('active');
-      } else {
-        // Находим элемент по иконке/индексу
-        const navs = document.querySelectorAll('.nav-item');
-        if (tabId === 'swap') navs[1].classList.add('active');
-      }
-    }
-
-    // --- 5. ОБМЕННИК (SWAP LOGIC) ---
-    function calculateSwap() {
-      const val = parseFloat(document.getElementById('swapFromInput').value);
-      if (val && val > 0) {
-        document.getElementById('swapToInput').value = (val / TON_RATE).toFixed(3);
-      } else {
-        document.getElementById('swapToInput').value = '';
-      }
-    }
-
-    function executeSwap() {
-      const val = parseFloat(document.getElementById('swapFromInput').value);
-      if (!val || val <= 0) {
-        alert('Введите корректную сумму для обмена');
-        return;
-      }
-      if (val > appState.usdt) {
-        alert('Недостаточно USDT на балансе');
-        return;
-      }
-
-      const tonGained = val / TON_RATE;
-      appState.usdt -= val;
-      appState.ton += tonGained;
-
-      appState.transactions.unshift({
-        type: 'swap',
-        title: 'Обмен USDT ➔ TON',
-        amount: `+${tonGained.toFixed(2)} TON`,
-        date: 'Только что',
-        isPlus: true
-      });
-
-      document.getElementById('swapFromInput').value = '';
-      document.getElementById('swapToInput').value = '';
-
-      saveState();
-      triggerHaptic('notification', 'success');
-      alert(`Успешно обменено ${val} USDT на ${tonGained.toFixed(2)} TON`);
-      switchTab('wallet');
-    }
-
-    // --- 6. МОДАЛЬНЫЕ ОКНА И ОПЕРАЦИИ ---
-    function openModal(type) {
-      triggerHaptic('impact', 'medium');
-      const backdrop = document.getElementById('modalBackdrop');
-      const title = document.getElementById('modalTitle');
-      const body = document.getElementById('modalBody');
-
-      if (type === 'deposit') {
-        title.innerText = 'Пополнение USDT';
-        body.innerHTML = `
-          <p style="font-size:0.85rem; color:var(--text-sub);">Сумма пополнения (USDT):</p>
-          <input type="number" id="inputDepositVal" class="form-input" placeholder="100">
-          <button class="btn-submit" onclick="confirmDeposit()">Подтвердить Пополнение</button>
-        `;
-      } else if (type === 'withdraw') {
-        title.innerText = 'Вывод USDT';
-        body.innerHTML = `
-          <p style="font-size:0.85rem; color:var(--text-sub);">Адрес получателя (TRC-20):</p>
-          <input type="text" class="form-input" placeholder="T..." id="withdrawAddr">
-          <p style="font-size:0.85rem; color:var(--text-sub);">Сумма (USDT):</p>
-          <input type="number" id="inputWithdrawVal" class="form-input" placeholder="50">
-          <button class="btn-submit" onclick="confirmWithdraw()">Запросить Вывод</button>
-        `;
-      } else if (type === 'transfer') {
-        title.innerText = 'Внутренний Перевод';
-        body.innerHTML = `
-          <p style="font-size:0.85rem; color:var(--text-sub);">Telegram @username получателя:</p>
-          <input type="text" class="form-input" placeholder="@user">
-          <p style="font-size:0.85rem; color:var(--text-sub);">Сумма (USDT):</p>
-          <input type="number" id="inputTransferVal" class="form-input" placeholder="25">
-          <button class="btn-submit" onclick="confirmTransfer()">Отправить Перевод</button>
-        `;
-      }
-
-      backdrop.classList.add('active');
-    }
-
-    function closeModal() {
-      document.getElementById('modalBackdrop').classList.remove('active');
-    }
-
-    function confirmDeposit() {
-      const val = parseFloat(document.getElementById('inputDepositVal').value);
-      if (val && val > 0) {
-        appState.usdt += val;
-        appState.transactions.unshift({
-          type: 'deposit',
-          title: 'Пополнение USDT',
-          amount: `+${val.toFixed(2)} USDT`,
-          date: 'Только что',
-          isPlus: true
+        // Кнопка, которая закрывает приложение ТОЛЬКО по вашему требованию
+        document.getElementById('close-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (tg) {
+                tg.close();
+            }
         });
-        saveState();
-        triggerHaptic('notification', 'success');
-        closeModal();
-      }
-    }
-
-    function confirmWithdraw() {
-      const val = parseFloat(document.getElementById('inputWithdrawVal').value);
-      if (val && val > 0 && val <= appState.usdt) {
-        appState.usdt -= val;
-        appState.transactions.unshift({
-          type: 'withdraw',
-          title: 'Вывод USDT',
-          amount: `-${val.toFixed(2)} USDT`,
-          date: 'Только что',
-          isPlus: false
-        });
-        saveState();
-        triggerHaptic('notification', 'success');
-        closeModal();
-      } else {
-        alert('Недостаточно средств или неверная сумма!');
-      }
-    }
-
-    function confirmTransfer() {
-      const val = parseFloat(document.getElementById('inputTransferVal').value);
-      if (val && val > 0 && val <= appState.usdt) {
-        appState.usdt -= val;
-        appState.transactions.unshift({
-          type: 'transfer',
-          title: 'Перевод пользователю',
-          amount: `-${val.toFixed(2)} USDT`,
-          date: 'Только что',
-          isPlus: false
-        });
-        saveState();
-        triggerHaptic('notification', 'success');
-        closeModal();
-      } else {
-        alert('Ошибка перевода!');
-      }
-    }
-
-    // Старт
-    renderUI();
-  </script>
+    </script>
 </body>
+</html>
