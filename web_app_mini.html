@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>🇨🇭 Switzerbot Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            padding: 20px 0;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .section {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .section-title {
+            padding: 16px;
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .section-content {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0;
+        }
+
+        button {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            background: white;
+            border-right: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        button:last-child {
+            border-right: none;
+        }
+
+        button:nth-child(odd):last-child,
+        button:nth-child(even):last-child {
+            border-bottom: none;
+        }
+
+        button:active {
+            background: #f0f0f0;
+            transform: scale(0.98);
+        }
+
+        button span {
+            display: block;
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .wallet-info {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .wallet-balance {
+            font-size: 28px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .wallet-label {
+            color: #999;
+            font-size: 13px;
+        }
+
+        .status-message {
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            font-size: 12px;
+            opacity: 0.7;
+            padding: 16px 0;
+        }
+
+        .button-grid-4 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .button-grid-3 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .last-transactions {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-emoji {
+            font-size: 18px;
+            margin-right: 8px;
+        }
+
+        .transaction-left {
+            flex: 1;
+        }
+
+        .transaction-type {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .transaction-time {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .transaction-amount {
+            font-weight: 600;
+            color: #667eea;
+            text-align: right;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            }
+
+            .wallet-info,
+            .section {
+                background: #2a2a3e;
+                color: white;
+            }
+
+            button {
+                background: #2a2a3e;
+                color: white;
+                border-color: #444;
+            }
+
+            button:active {
+                background: #444;
+            }
+
+            .transaction-item {
+                border-bottom-color: #444;
+            }
+
+            .transaction-type {
+                color: #fff;
+            }
+
+            .section-title {
+                background: #1a1a2e;
+                color: #ddd;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🇨🇭 Switzerbot</h1>
+            <p>Mini App Interface</p>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 12px;">Processing...</p>
+        </div>
+
+        <div class="wallet-info" id="walletInfo">
+            <div class="wallet-balance">$1,234.56</div>
+            <div class="wallet-label">Your Balance</div>
+        </div>
+
+        <div class="status-message" id="statusMessage"></div>
+
+        <!-- Main Actions -->
+        <div class="section">
+            <div class="section-title">💰 Quick Actions</div>
+            <div class="section-content button-grid-4">
+                <button onclick="sendAction('deposit')" title="Deposit crypto">
+                    <span>💵</span>
+                    <div>Deposit</div>
+                </button>
+                <button onclick="sendAction('withdraw')" title="Withdraw funds">
+                    <span>📤</span>
+                    <div>Withdraw</div>
+                </button>
+                <button onclick="sendAction('transfer')" title="Send transfer">
+                    <span>↔️</span>
+                    <div>Transfer</div>
+                </button>
+                <button onclick="sendAction('history')" title="View history">
+                    <span>📊</span>
+                    <div>History</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Security Section -->
+        <div class="section">
+            <div class="section-title">🔐 Security</div>
+            <div class="section-content button-grid-3">
+                <button onclick="sendAction('2fa')" title="2FA settings">
+                    <span>🔑</span>
+                    <div>2FA</div>
+                </button>
+                <button onclick="sendAction('devices')" title="Trusted devices">
+                    <span>📱</span>
+                    <div>Devices</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Last Transactions (Optional) -->
+        <div class="last-transactions" id="transactions" style="display:none;">
+            <div style="font-weight: 600; margin-bottom: 12px; color: #333;">Recent Transactions</div>
+            <div class="transaction-item">
+                <div class="transaction-left">
+                    <div class="transaction-type">💵 Deposit</div>
+                    <div class="transaction-time">May 30, 14:35</div>
+                </div>
+                <div class="transaction-amount">+100.00 TON</div>
+            </div>
+            <div class="transaction-item">
+                <div class="transaction-left">
+                    <div class="transaction-type">↔️ Transfer</div>
+                    <div class="transaction-time">May 30, 12:10</div>
+                </div>
+                <div class="transaction-amount">-50.00 USDT</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>🇨🇭 Switzerbot v2.5 | Mini App</p>
+    </div>
+
+    <script>
+        // Initialize Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+
+        // User data
+        const initData = tg.initDataUnsafe;
+        const userId = initData?.user?.id || 'unknown';
+        const username = initData?.user?.username || 'User';
+
+        console.log('Mini App initialized:', {
+            userId,
+            username,
+            chatId: initData?.chat?.id,
+            theme: tg.colorScheme
+        });
+
+        // Configure main button
+        tg.MainButton.text = '✅ Close';
+        tg.MainButton.show();
+        tg.MainButton.onClick(() => {
+            tg.close();
+        });
+
+        // Apply theme
+        function applyTheme() {
+            if (tg.colorScheme === 'dark') {
+                document.body.style.setProperty('--tg-theme-bg-color', '#1a1a2e');
+            } else {
+                document.body.style.setProperty('--tg-theme-bg-color', '#ffffff');
+            }
+        }
+
+        applyTheme();
+        tg.onEvent('themeChanged', applyTheme);
+
+        // Send action to bot
+        function sendAction(action) {
+            const button = event.target.closest('button');
+            if (!button) return;
+
+            // Show loading
+            showLoading(true);
+
+            const data = {
+                action: action,
+                timestamp: new Date().toISOString(),
+                user_id: userId,
+                username: username
+            };
+
+            console.log('Sending to bot:', data);
+
+            // Send to bot
+            try {
+                tg.sendData(JSON.stringify(data));
+                showStatus('✅ ' + action.toUpperCase() + ' started!', 'success');
+            } catch (error) {
+                console.error('Error sending data:', error);
+                showStatus('❌ Error: ' + error.message, 'error');
+            }
+
+            // Close after 2 seconds
+            setTimeout(() => {
+                showLoading(false);
+                tg.close();
+            }, 2000);
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('show', show);
+        }
+
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = 'status-message ' + type;
+
+            setTimeout(() => {
+                statusEl.className = 'status-message';
+            }, 3000);
+        }
+
+        // Haptic feedback
+        function vibrate() {
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('light');
+            }
+        }
+
+        // Add click feedback
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', vibrate);
+        });
+
+        // Handle back button
+        tg.BackButton.onClick(() => {
+            tg.close();
+        });
+
+        // Log viewport info
+        console.log('Viewport:', {
+            viewportHeight: tg.viewportHeight,
+            headerColor: tg.headerColor,
+            backgroundColor: tg.backgroundColor,
+            bottomBarColor: tg.bottomBarColor
+        });
+    </script>
+</body>
+</html>

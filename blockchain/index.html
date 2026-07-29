@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0d14">
+    <title>SWIWALLET — Alpine Web3 Ecosystem</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Unbounded:wght@800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            background-color: #0a0d14;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        .font-monumental {
+            font-family: 'Unbounded', sans-serif;
+            letter-spacing: -0.06em;
+        }
+        .alpine-bg {
+            background-image: linear-gradient(180deg, rgba(10, 13, 20, 0.4) 0%, #0a0d14 95%), 
+                              url('https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center 30%;
+        }
+        .frzn-glass {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(35px) saturate(110%);
+            -webkit-backdrop-filter: blur(35px) saturate(110%);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        .giant-text-under {
+            position: absolute;
+            font-size: 24vw;
+            line-height: 0.8;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.03);
+            z-index: 1;
+            pointer-events: none;
+            text-transform: uppercase;
+        }
+        .frzn-border {
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+        /* Улучшенный контраст для доступности */
+        .text-slate-400 {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+        .text-slate-500 {
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+        /* Button стили */
+        button {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        button:focus {
+            outline: 2px solid rgba(255, 255, 255, 0.3);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body class="text-white antialiased selection:bg-white selection:text-black">
+
+    <header class="relative alpine-bg min-h-screen w-full flex flex-col justify-between p-6 sm:p-10 border-b frzn-border">
+        
+        <div class="relative z-20 flex justify-between items-center max-w-7xl w-full mx-auto">
+            <div class="font-monumental text-lg sm:text-xl font-black tracking-tighter">
+                SWI<span class="text-slate-400">WALLET</span>
+            </div>
+            <div class="hidden md:flex space-x-10 text-[11px] uppercase tracking-[0.2em] font-medium text-slate-400">
+                <a href="#matrix" class="hover:text-white transition">Core</a>
+                <a href="#components" class="hover:text-white transition">Specifications</a>
+                <a href="#terminal" class="hover:text-white transition">Security</a>
+            </div>
+            <button id="launchBtn" class="border border-white/30 hover:border-white bg-white/5 hover:bg-white hover:text-black text-[11px] font-bold tracking-widest uppercase px-6 py-3 rounded-none transition duration-300" aria-label="Launch Wallet App">
+                Launch App <i class="fa-solid fa-arrow-up-right text-[9px] ml-1"></i>
+            </button>
+        </div>
+
+        <div class="giant-text-under font-monumental top-[30%] left-1/2 -translate-x-1/2 w-full text-center">
+            FRZN
+        </div>
+
+        <div class="relative z-10 max-w-7xl w-full mx-auto my-auto grid grid-cols-1 lg:grid-cols-12 gap-0 pt-20">
+            
+            <div class="lg:col-span-5 frzn-glass p-8 sm:p-12 flex flex-col justify-between border-r-0 lg:border-r frzn-border">
+                <div>
+                    <div class="text-[10px] uppercase tracking-[0.3em] text-slate-400 font-medium mb-6">
+                        // Swiss Digital Standard
+                    </div>
+                    <h1 class="font-monumental text-3xl sm:text-5xl font-black leading-none uppercase mb-6">
+                        SWISS <br>MATRIX <br>VAULT
+                    </h1>
+                    <p class="text-xs sm:text-sm text-slate-400 font-light leading-relaxed max-w-sm mb-8">
+                        Криптографическая экосистема нового поколения. Бескомпромиссный холодный минимализм архитектуры интерфейса для тотального контроля ваших активов.
+                    </p>
+                </div>
+                <div>
+                    <button id="openWalletBtn" class="inline-flex items-center space-x-4 bg-white text-black font-semibold text-xs uppercase tracking-wider px-8 py-4 hover:bg-slate-200 transition" aria-label="Open Wallet">
+                        <span>Открыть кошелек</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="lg:col-span-7 bg-black/10 backdrop-blur-sm p-8 sm:p-12 border border-t-0 lg:border-t-1 lg:border-l-0 frzn-border flex flex-col justify-between">
+                <div class="text-right text-[10px] font-mono text-slate-500 tracking-wider hidden lg:block">
+                    DOMAIN: SWIWALLET.COM // SYS_LOC: ZÜRICH
+                </div>
+                
+                <div class="grid grid-cols-2 gap-8 pt-10 lg:pt-0">
+                    <div>
+                        <div class="font-mono text-xs text-slate-500 mb-1">01 // TRANSACTION SPEED</div>
+                        <div class="text-xl font-bold font-monumental">⚡️ INSTANT</div>
+                        <div class="text-[11px] text-slate-400 mt-1 font-light">Переводы внутри экосистемы без задержек сети.</div>
+                    </div>
+                    <div>
+                        <div class="font-mono text-xs text-slate-500 mb-1">02 // SPLIT MULTIPLY</div>
+                        <div class="text-xl font-bold font-monumental">÷ BILLS</div>
+                        <div class="text-[11px] text-slate-400 mt-1 font-light">Автоматическое деление счетов между участниками.</div>
+                    </div>
+                </div>
+
+                <div class="border-t frzn-border pt-6 mt-12 flex justify-between items-center text-[11px] font-mono text-slate-400">
+                    <span>BUILD: PRODUCTION V2.5</span>
+                    <span>HOST: SWIWALLET.COM</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative z-20 max-w-7xl w-full mx-auto flex justify-between items-center text-[10px] tracking-widest text-slate-500 uppercase font-mono">
+            <span>Designed for tech-wear generation</span>
+            <div class="flex space-x-4">
+                <a href="https://t.me/switzerbot" class="hover:text-white transition" aria-label="Telegram"><i class="fa-brands fa-telegram"></i></a>
+                <a href="https://x.com/swiwallet" class="hover:text-white transition" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+            </div>
+        </div>
+    </header>
+
+    <section id="components" class="relative max-w-7xl w-full mx-auto py-24 px-6">
+        <div class="mb-16 border-b frzn-border pb-6 flex justify-between items-end">
+            <div>
+                <div class="font-mono text-xs text-slate-500 uppercase">// Ecosystem Features</div>
+                <h2 class="font-monumental text-2xl sm:text-3xl font-black uppercase mt-2">АРХИТЕКТУРА И ИНСТРУМЕНТЫ</h2>
+            </div>
+            <div class="font-mono text-[11px] text-slate-500 hidden sm:block">SPEC_SHEET_09.JAR</div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            <button class="border frzn-border p-6 flex flex-col justify-between h-64 bg-white/[0.01] hover:bg-white/[0.03] transition duration-300 text-left" data-action="assets" aria-label="Assets Management">
+                <div class="font-mono text-xs text-slate-500">SYS_01 // ASSETS</div>
+                <div>
+                    <h3 class="font-monumental text-sm font-bold uppercase mb-2">Мультивалютность</h3>
+                    <p class="text-xs text-slate-400 font-light leading-relaxed">Бесшовное управление балансом TON, мгновенные депозиты и выводы.</p>
+                </div>
+            </button>
+
+            <button class="border frzn-border p-6 flex flex-col justify-between h-64 bg-white/[0.01] hover:bg-white/[0.03] transition duration-300 text-left" data-action="split" aria-label="Split Bills">
+                <div class="font-mono text-xs text-slate-500">SYS_02 // DEBT MANAGEMENT</div>
+                <div>
+                    <h3 class="font-monumental text-sm font-bold uppercase mb-2">Альпийский сплит</h3>
+                    <p class="text-xs text-slate-400 font-light leading-relaxed">Совместное разделение чеков на любой тусовке с математической швейцарской точностью.</p>
+                </div>
+            </button>
+
+            <button class="border frzn-border p-6 flex flex-col justify-between h-64 bg-white/[0.01] hover:bg-white/[0.03] transition duration-300 text-left" data-action="legacy" aria-label="Legacy Protocol">
+                <div class="font-mono text-xs text-slate-500">SYS_03 // SMART CONTRACT</div>
+                <div>
+                    <h3 class="font-monumental text-sm font-bold uppercase mb-2">Legacy Протокол</h3>
+                    <p class="text-xs text-slate-400 font-light leading-relaxed">Автоматическая передача активов доверенным лицам в случае вашей длительной офлайн-активности.</p>
+                </div>
+            </button>
+
+            <button class="border frzn-border p-6 flex flex-col justify-between h-64 bg-white/[0.01] hover:bg-white/[0.03] transition duration-300 text-left" data-action="tournaments" aria-label="Tournaments">
+                <div class="font-mono text-xs text-slate-500">SYS_04 // TOURNAMENTS</div>
+                <div>
+                    <h3 class="font-monumental text-sm font-bold uppercase mb-2">Лидерборд активности</h3>
+                    <p class="text-xs text-slate-400 font-light leading-relaxed">Еженедельный автоматический запуск пула наград среди самых активных холдеров экосистемы.</p>
+                </div>
+            </button>
+
+        </div>
+    </section>
+
+    <section id="terminal" class="relative max-w-7xl w-full mx-auto py-16 px-6 mb-24">
+        <div class="frzn-glass rounded-none p-8 sm:p-12 border frzn-border grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            <div class="lg:col-span-5">
+                <div class="font-mono text-xs text-slate-500 uppercase mb-2">// Absolute Protection</div>
+                <h2 class="font-monumental text-xl sm:text-2xl font-black uppercase mb-4">БЕЗОПАСНОСТЬ УРОВНЯ MATRIX</h2>
+                <p class="text-xs text-slate-400 font-light leading-relaxed">
+                    Двухфакторная аутентификация по стандарту TOTP (Time-based One-time Password), шифрование локальных секретов алгоритмом AES-256 и строгий контроль сессий устройств.
+                </p>
+            </div>
+
+            <div class="lg:col-span-7 font-mono text-[11px] text-slate-400 bg-black/40 p-6 border frzn-border space-y-2">
+                <div class="flex justify-between border-b frzn-border pb-2 text-white font-bold">
+                    <span>SWIWALLET_SECURITY_STATUS</span>
+                    <span id="securityStatus">[CHECKING]</span>
+                </div>
+                <div class="text-slate-500">// INTEGRITY MATRIX CHECK: RUNNING</div>
+                <div>CORE_ENC: AES-256-GCM BINDING MODULE ACTIVE</div>
+                <div>2FA_VAL: TIME-BASED TOKEN GENERATOR ACTIVE</div>
+                <div class="text-slate-600 pt-4">BARCODE SECURITY VALIDATION: |||||||||||||||||||||||||||| SWIWALLET.COM</div>
+            </div>
+
+        </div>
+    </section>
+
+    <footer class="border-t frzn-border py-12 text-center text-[10px] tracking-[0.2em] uppercase font-mono text-slate-600">
+        <p>&copy; 2026 SWIWALLET ECOSYSTEM. FORGED IN SWITZERLAND. ALL RIGHTS RESERVED.</p>
+    </footer>
+
+    <script>
+        // 🚀 Telegram WebApp Integration
+        if (window.Telegram?.WebApp) {
+            const tg = Telegram.WebApp;
+            tg.ready();
+            tg.expand();
+            tg.setBackgroundColor("#0a0d14");
+            tg.setHeaderColor("#0a0d14");
+            
+            // Безопасность
+            document.getElementById('securityStatus').textContent = '[SECURE]';
+        }
+
+        // 📱 Action Handlers
+        document.getElementById('launchBtn')?.addEventListener('click', () => {
+            if (window.Telegram?.WebApp) {
+                Telegram.WebApp.sendData(JSON.stringify({action: 'launch', timestamp: Date.now()}));
+            } else {
+                window.location.href = 'https://t.me/switzerbot?start=miniapp';
+            }
+        });
+
+        document.getElementById('openWalletBtn')?.addEventListener('click', () => {
+            if (window.Telegram?.WebApp) {
+                Telegram.WebApp.sendData(JSON.stringify({action: 'wallet', timestamp: Date.now()}));
+            } else {
+                window.location.href = 'https://t.me/switzerbot?start=wallet';
+            }
+        });
+
+        // Все кнопки с data-action
+        document.querySelectorAll('[data-action]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const action = e.currentTarget.dataset.action;
+                if (window.Telegram?.WebApp) {
+                    Telegram.WebApp.sendData(JSON.stringify({
+                        action: action,
+                        timestamp: Date.now()
+                    }));
+                }
+                // Haptic feedback
+                if (window.Telegram?.WebApp?.HapticFeedback) {
+                    Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+                }
+            });
+        });
+
+        // ⌨️ Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && window.Telegram?.WebApp) {
+                Telegram.WebApp.close();
+            }
+        });
+    </script>
+
+</body>
+</html>
+
+    <header class="relative alpine-bg min-h-screen w-full flex flex-col justify-between p-6 sm:p-10 border-b frzn-border">
+        
+        <div class="relative z-20 flex justify-between items-center max-w-7xl w-full mx-auto">
+            <div class="font-monumental text-lg sm:text-xl font-black tracking-tighter">
+                SWI<span class="text-slate-400">WALLET</span>
+            </div>
+            <div class="hidden md:flex space-x-10 text-[11px] uppercase tracking-[0.2em] font-medium text-slate-400">
+                <a href="#matrix" class="hover:text-white transition">Core</a>
+                <a href="#components" class="hover:text-white transition">Specifications</a>
+                <a href="#terminal" class="hover:text-white transition">Security</a>
+            </div>
+            <a href="https://swiwallet.com" class="border border-white/30 hover:border-white bg-white/5 hover:bg-white hover:text-black text-[11px] font-bold tracking-widest uppercase px-6 py-3 rounded-none transition duration-300">
+                Launch App <i class="fa-solid fa-arrow-up-right text-[9px] ml-1"></i>
+            </a>
+        </div>
+
+        <div class="giant-text-under font-monumental top-[30%] left-1/2 -translate-x-1/2 w-full text-center">
+            FRZN
+        </div>
+
+        <div class="relative z-10 max-w-7xl w-full mx-auto my-auto grid grid-cols-1 lg:grid-cols-12 gap-0 pt-20">
+            
+            <div class="lg:col-span-5 frzn-glass p-8 sm:p-12 flex flex-col justify-between border-r-0 lg:border-r frzn-border">
+                <div>
+                    <div class="text-[10px] uppercase tracking-[0.3em] text-slate-400 font-medium mb-6">
+                        // Swiss Digital Standard
+                    </div>
+                    <h1 class="font-monumental text-3xl sm:text-5xl font-black leading-none uppercase mb-6">
+                        SWISS <br>MATRIX <br>VAULT
+                    </h1>
+                    <p class="text-xs sm:text-sm text-slate-400 font-light leading-relaxed max-w-sm mb-8">
+                        Криптографическая экосистема нового поколения. Бескомпромиссный холодный минимализм архитектуры интерфейса для тотального контроля ваших активов.
+                    </p>
+                </div>
+                <div>
+                    <a href="https://swiwallet.com" class="inline-flex items-center space-x-4 bg-white text-black font-semibold text-xs uppercase tracking-wider px-8 py-4 hover:bg-slate-200 transition">
+                        <span>Открыть кошелек</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="lg:col-span-7 bg-black/10 backdrop-blur-sm p-8 sm:p-12 border border-t-0 lg:border-t-1 lg:border-l-0 frzn-border flex flex-col justify-between">
+                <div class="text-right text-[10px] font-mono text-slate-500 tracking-wider hidden lg:block">
+                    DOMAIN: SWIWALLET.COM // SYS_LOC: ZÜRICH
+                </div>
+                
+                <div class="grid grid-cols-2 gap-8 pt-10 lg:pt-0">
+                    <div>
+                        <div class="font-mono text-xs text-slate-500 mb-1">01 // TRANSACTION SPEED</div>
+                        <div class="text-xl font-bold font-monumental">⚡️ INSTANT</div>
+                        <div class="text-[11px] text-slate-400 mt-1 font-light">Переводы внутри экосистемы без задержек сети.</div>
+                    </div>
+                    <div>
+                        <div class="font-mono text-xs text-slate-500 mb-1">02 // SPLIT MULTIPLY</div>
+                        <div class="text-xl font-bold font-monumental">÷ BILLS</div>
+                        <div class="text-[11px] text-slate-400 mt-1 font-light">Автоматическое деление счетов между участниками.</div>
+                    </div>
+                </div>
+
+                <div class="border-t frzn-border pt-6 mt-12 flex justify-between items-center text-[11px] font-mono text-slate-400">
+                    <span>BUILD: PRODUCTION V2.5</span>
+                    <span>HOST: SWIWALLET.COM</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative z-20 max-w-7xl w-full mx-auto flex justify-between items-center text-[10px] tracking-widest text-slate-500 uppercase font-mono">
+            <span>Designed for tech-wear generation</span>
+            <div class="flex space-x-4">
+                <a href="https://swiwallet.com" class="hover:text-white transition"><i class="fa-brands fa-telegram"></i></a>
+                <a href="https://swiwallet.com" class="hover:text-white transition"><i class="fa-brands fa-x-twitter"></i></a>
+            </div>
+        </div>
+    </header>
+
+    <section id="components" class="relative max-w-7xl w-full mx-auto py-24 px-6">
+        <div class="mb-16 border-b frzn-border pb-6 flex justify-between items-end">
+            <div>
+                <div class="font-mono text-xs text-slate-500 uppercase">// Ecosystem Features</div>
+                <h2 class="font-monumental text-2xl sm:text-3xl font-black uppercase mt-2">АРХИТЕКТУРА И ИНСТРУМЕНТЫ</h2>
+            </div>
+            <div class="font-mono text-[11px] text-slate-500 hidden sm:block">SPEC_SHEET_09.JAR</div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            <div class="border frzn-border p-6 flex flex-col justify-between h-64 bg-white/[0.01] hover:bg-white/[0.03] transition duration-300">
+                <div class="font-mono text-xs text-slate-500">SYS_01 // ASSETS</div>
+                <div>
+                    <h3 class="font-monumental text-sm font-bold uppercase mb-2">Мультивалютность</h3>
+                    <p class="text-xs text-slate-400 font-light leading-relaxed">Бесшовное управление балансом TON, мгновенные депозиты и выводы.</p>
+                </div>
+            </div>
+
+            <div class="border frzn-border p-6 flex flex-col justify-between h-64 bg-white/[0.01] hover:bg-white/[0.03] transition duration-300">
+                <div class="font-mono text-xs text-slate-500">SYS_02 // DEBT MANAGEMENT</div>
+                <div>
+                    <h3 class="font-monumental text-sm font-bold uppercase mb-2">Альпийский сплит</h3>
+                    <p class="text-xs text-slate-400 font-light leading-relaxed">Совместное разделение чеков на любой тусовке с математической швейцарской точностью.</p>
+                </div>
+            </div>
+
+            <div class="border frzn-border p-6 flex flex-col justify-between h-64 bg-white/[0.01] hover:bg-white/[0.03] transition duration-300">
+                <div class="font-mono text-xs text-slate-500">SYS_03 // SMART CONTRACT</div>
+                <div>
+                    <h3 class="font-monumental text-sm font-bold uppercase mb-2">Legacy Протокол</h3>
+                    <p class="text-xs text-slate-400 font-light leading-relaxed">Автоматическая передача активов доверенным лицам в случае вашей длительной офлайн-активности.</p>
+                </div>
+            </div>
+
+            <div class="border frzn-border p-6 flex flex-col justify-between h-64 bg-white/[0.01] hover:bg-white/[0.03] transition duration-300">
+                <div class="font-mono text-xs text-slate-500">SYS_04 // TOURNAMENTS</div>
+                <div>
+                    <h3 class="font-monumental text-sm font-bold uppercase mb-2">Лидерборд активности</h3>
+                    <p class="text-xs text-slate-400 font-light leading-relaxed">Еженедельный автоматический запуск пула наград среди самых активных холдеров экосистемы.</p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="terminal" class="relative max-w-7xl w-full mx-auto py-16 px-6 mb-24">
+        <div class="frzn-glass rounded-none p-8 sm:p-12 border frzn-border grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            <div class="lg:col-span-5">
+                <div class="font-mono text-xs text-slate-500 uppercase mb-2">// Absolute Protection</div>
+                <h2 class="font-monumental text-xl sm:text-2xl font-black uppercase mb-4">БЕЗОПАСНОСТЬ УРОВНЯ MATRIX</h2>
+                <p class="text-xs text-slate-400 font-light leading-relaxed">
+                    Двухфакторная аутентификация по стандарту TOTP (Time-based One-time Password), шифрование локальных секретов алгоритмом AES-256 и строгий контроль сессий устройств.
+                </p>
+            </div>
+
+            <div class="lg:col-span-7 font-mono text-[11px] text-slate-400 bg-black/40 p-6 border frzn-border space-y-2">
+                <div class="flex justify-between border-b frzn-border pb-2 text-white font-bold">
+                    <span>SWIWALLET_SECURITY_STATUS</span>
+                    <span>[SECURE]</span>
+                </div>
+                <div class="text-slate-500">// INTEGRITY MATRIX CHECK: SUCCESSFUL</div>
+                <div>CORE_ENC: AES-256-GCM BINDING MODULE ACTIVE</div>
+                <div>2FA_VAL: TIME-BASED TOKEN GENERATOR ACTIVE</div>
+                <div class="text-slate-600 pt-4">BARCODE SECURITY VALIDATION: |||||||||||||||||||||||||||| SWIWALLET.COM</div>
+            </div>
+
+        </div>
+    </section>
+
+    <footer class="border-t frzn-border py-12 text-center text-[10px] tracking-[0.2em] uppercase font-mono text-slate-600">
+        <p>&copy; 2026 SWIWALLET ECOSYSTEM. FORGED IN SWITZERLAND. ALL RIGHTS RESERVED.</p>
+    </footer>
+
+</body>
+</html>

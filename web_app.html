@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🪙 Switzerbot Wallet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 15px 15px 0 0;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .main {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .wallet-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .balance-title {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        .balance-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .balance-usd {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .currencies {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .currency-item {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .currency-icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .currency-name {
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+        
+        .currency-value {
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        .features {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .feature-icon {
+            font-size: 18px;
+            margin-right: 10px;
+        }
+        
+        .footer {
+            background: white;
+            border-radius: 0 0 15px 15px;
+            padding: 15px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🪙 Switzerbot</h1>
+            <p>Крипто-кошелек в Telegram</p>
+        </div>
+        
+        <div class="main">
+            <div class="wallet-card">
+                <div class="balance-title">Общий баланс</div>
+                <div class="balance-value">$1,234.56</div>
+                <div class="balance-usd">≈ 164.61 TON</div>
+            </div>
+            
+            <div class="currencies">
+                <div class="currency-item">
+                    <div class="currency-icon">🪙</div>
+                    <div class="currency-name">TON</div>
+                    <div class="currency-value">164.61</div>
+                </div>
+                <div class="currency-item">
+                    <div class="currency-icon">🔹</div>
+                    <div class="currency-name">USDT</div>
+                    <div class="currency-value">1,200.00</div>
+                </div>
+                <div class="currency-item">
+                    <div class="currency-icon">🔶</div>
+                    <div class="currency-name">ETH</div>
+                    <div class="currency-value">0.25</div>
+                </div>
+                <div class="currency-item">
+                    <div class="currency-icon">🟠</div>
+                    <div class="currency-name">BTC</div>
+                    <div class="currency-value">0.01</div>
+                </div>
+            </div>
+            
+            <div class="buttons">
+                <button>💰 Пополнить</button>
+                <button>📤 Вывести</button>
+                <button>🔗 Перевод</button>
+                <button>💸 Сплит</button>
+            </div>
+            
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">✅</div>
+                    <div>Поддержка 10+ криптовалют</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔐</div>
+                    <div>Продвинутая безопасность (2FA)</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <div>Мгновенные транзакции</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">💎</div>
+                    <div>Premium план с привилегиями</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Открой в Telegram для полного доступа</p>
+            <p>© 2026 Switzerbot. Все права защищены.</p>
+        </div>
+    </div>
+    
+    <script>
+        // Telegram Web App API
+        if (window.Telegram && window.Telegram.WebApp) {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+            
+            // При закрытии
+            document.addEventListener('close', () => {
+                tg.close();
+            });
+        }
+    </script>
+</body>
+</html>
