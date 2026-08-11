@@ -1,0 +1,64 @@
+import os, time, requests
+from dotenv import load_dotenv
+load_dotenv("/opt/botik/.env")
+import sys; sys.path.insert(0, "/opt/botik/backend")
+from database import SessionLocal
+from models import User, Balance, Transaction
+
+DEPOSIT = os.getenv("TON_DEPOSIT_ADDRESS", "")
+API_KEY = os.getenv("TONCENTER_API_KEY", "")
+STATE = "/opt/botik/backend/.ton_last_lt"
+BOT = os.getenv("BOT_TOKEN")
+
+def get_txs():
+    params = {"address": DEPOSIT, "limit": 20}
+    if API_KEY: params["api_key"] = API_KEY
+    r = requests.get("https://toncenter.com/api/v2/getTransactions", params=params, timeout=15)
+    return r.json().get("result", [])
+
+def credit(user_id, amount):
+    db = SessionLocal()
+    u = db.query(User).filter(User.id == user_id).first()
+    if not u:
+        db.close(); return False
+    b = db.query(Balance).filter(Balance.user_id == user_id, Balance.coin == "TON").first()
+    if not b:
+        b = Balance(user_id=user_id, coin="TON", amount=0.0); db.add(b)
+    b.amount += amount
+    db.add(Transaction(user_id=user_id, coin="TON", amount=amount, direction="in", to_addr=DEPOSIT))
+    db.commit(); db.close()
+    try:
+        requests.post(f"https://api.telegram.org/bot{BOT}/sendMessage",
+                      json={"chat_id": user_id, "text": f"✅ Депозит зачислен: +{round(amount,4)} TON"}, timeout=5)
+    except Exception:
+        pass
+    return True
+
+def main():
+    last = 0
+    if os.path.exists(STATE):
+        try:
+            last = int(open(STATE).read().strip() or 0)
+        except Exception:
+            last = 0
+    print("TON listener started, last_lt =", last)
+    while True:
+        try:
+            for tx in get_txs():
+                lt = int(tx["transaction_id"]["lt"])
+                if lt <= last:
+                    continue
+                last = max(last, lt)
+                msg = tx.get("in_msg") or {}
+                val = int(msg.get("value", "0") or 0) / 1e9
+                comment = (msg.get("message") or "").strip()
+                if val > 0 and comment.isdigit():
+                    if credit(int(comment), val):
+                        print("credited", val, "TON to", comment)
+            open(STATE, "w").write(str(last))
+        except Exception as e:
+            print("listener error:", e)
+        time.sleep(15)
+
+if __name__ == "__main__":
+    main()
