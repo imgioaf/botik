@@ -31,6 +31,11 @@
             overflow-x: hidden;
         }
 
+        body.light {
+            background: linear-gradient(160deg, #f6f5fc 0%, #eceafa 100%);
+            color: #17172a;
+        }
+
         .container {
             max-width: 500px;
             margin: 0 auto;
@@ -47,6 +52,10 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
+        body.light .card {
+            background: rgba(255, 255, 255, .55);
+        }
+
         h1 {
             font-size: 1.5rem;
             margin-bottom: 12px;
@@ -61,6 +70,10 @@
             text-align: center;
         }
 
+        body.light .sub {
+            color: #63637a;
+        }
+
         .balance-section {
             text-align: center;
             margin-bottom: 20px;
@@ -69,11 +82,19 @@
             border-radius: 14px;
         }
 
+        body.light .bal {
+            background: rgba(255, 255, 255, .5);
+        }
+
         .balance-amount {
             font-size: 2rem;
             font-weight: 700;
             color: var(--accent-color);
             margin-bottom: 4px;
+        }
+
+        body.light .sum {
+            color: #5a5fd8;
         }
 
         .balance-label {
@@ -145,7 +166,6 @@
             color: #ef4444;
         }
 
-        /* Sheet (модальное окно) */
         .sheet {
             position: fixed;
             bottom: 0;
@@ -168,6 +188,11 @@
             transform: translateY(0);
         }
 
+        body.light .sbox {
+            background: #f4f3fb;
+            color: #17172a;
+        }
+
         .sheet h3 {
             font-size: 1.2rem;
             margin-bottom: 16px;
@@ -187,6 +212,12 @@
             color: var(--text-color);
             font-size: 0.95rem;
             margin-bottom: 12px;
+        }
+
+        body.light .sbox input,
+        body.light .sbox select {
+            background: rgba(0, 0, 0, .05);
+            color: #17172a;
         }
 
         .inp::placeholder {
@@ -227,6 +258,12 @@
             border-radius: 8px;
         }
 
+        body.light .addr,
+        body.light .feebox {
+            background: rgba(0, 0, 0, .04);
+            color: #17172a;
+        }
+
         .sheet .btn {
             grid-column: auto;
         }
@@ -262,6 +299,62 @@
         .gray {
             background: rgba(255, 255, 255, 0.08) !important;
         }
+
+        body.light .btn.gray {
+            background: rgba(0, 0, 0, .06) !important;
+            color: #55556a;
+        }
+
+        .sec {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 0 2px 8px;
+        }
+
+        .sec b {
+            font-size: 15px;
+        }
+
+        .sec div {
+            display: flex;
+            gap: 10px;
+        }
+
+        .sec button {
+            border: none;
+            background: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 420px) {
+            .card, .sbox {
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+            }
+        }
+
+        #toast {
+            position: fixed;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-90px);
+            transition: transform 0.3s;
+            z-index: 100;
+            padding: 10px 18px;
+            border-radius: 14px;
+            background: #1d1836;
+            border: 1px solid var(--glass-border);
+            font-size: 13px;
+            white-space: nowrap;
+            max-width: 92%;
+        }
+
+        #toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -270,12 +363,12 @@
         <!-- Главная карточка -->
         <div class="glass-card">
             <h1 id="user-greeting">Привет 👋</h1>
-            <p>Добро пожаловать в SwiWallet</p>
+            <p id="welcome-text">Добро пожаловать в SwiWallet</p>
 
             <!-- Баланс -->
             <div class="balance-section">
                 <div class="balance-amount">$1,250.50</div>
-                <div class="balance-label">Ваш баланс (USDT)</div>
+                <div class="balance-label" id="balSub">Ваш баланс (USD)</div>
             </div>
 
             <!-- Основные кнопки -->
@@ -299,6 +392,14 @@
 
             <!-- Статус -->
             <div class="status" id="status"></div>
+        </div>
+    </div>
+
+    <div class="sec">
+        <b id="assets-title">Мои активы</b>
+        <div>
+            <button type="button" id="langBtn" style="border:none;background:none;color:rgba(255,255,255,0.6);font-size:13px;margin-right:10px;cursor:pointer">🌐 EN</button>
+            <button type="button" id="hideSmallBtn">Скрыть мелкие</button>
         </div>
     </div>
 
@@ -330,6 +431,7 @@
 
     <!-- Оверлей -->
     <div class="overlay" id="overlay"></div>
+    <div id="toast"></div>
 
     <script>
         // Telegram WebApp API
@@ -345,31 +447,156 @@
 
         // Вспомогательные функции
         function haptic() {
-            tg?.impactOccurred?.('light');
+            tg?.HapticFeedback?.impactOccurred?.('light');
         }
 
         function toast(msg) {
-            const status = document.getElementById('status');
-            status.innerText = msg;
+            const status = document.getElementById('toast');
+            status.textContent = msg;
             status.classList.add('show');
-            setTimeout(() => status.classList.remove('show'), 3000);
+            clearTimeout(status._h);
+            status._h = setTimeout(() => status.classList.remove('show'), 2200);
         }
 
-        function openSheet(id) {
-            haptic();
+        function lsGet(k, d) {
+            try {
+                const v = localStorage.getItem(k);
+                return v == null ? d : JSON.parse(v);
+            } catch (e) {
+                return d;
+            }
+        }
+
+        function lsSet(k, v) {
+            try {
+                localStorage.setItem(k, JSON.stringify(v));
+            } catch (e) {}
+        }
+
+        function note(m) {
+            document.getElementById('status').textContent = m;
+        }
+
+        function _openSheet(id) {
             document.getElementById(id).classList.add('open');
             document.getElementById('overlay').classList.add('show');
         }
 
-        function closeSheet(id) {
-            haptic();
+        function _closeSheet(id) {
             document.getElementById(id).classList.remove('open');
             document.getElementById('overlay').classList.remove('show');
         }
 
+        function openSheet(id) {
+            haptic();
+            _openSheet(id);
+            try {
+                tg.BackButton.show();
+            } catch (e) {}
+        }
+
+        function closeSheet(id) {
+            haptic();
+            _closeSheet(id);
+            if (!document.querySelector('.sheet.open')) {
+                try {
+                    tg.BackButton.hide();
+                } catch (e) {}
+            }
+        }
+
+        // ===== БЛОК C: i18n, тема, оффлайн, BackButton =====
+        var UNAME = (tg?.initDataUnsafe?.user?.first_name) || 'друг';
+        var LANG = lsGet('swz_lang', 'ru');
+        var I18N = {
+            ru: {
+                dep: '💵 Пополнить',
+                wd: '📤 Вывести',
+                tr: '🔁 Перевод',
+                hist: '📊 История',
+                scan: '📷 Сканер',
+                qr: '🔳 Мой QR',
+                assets: 'Мои активы',
+                hide: 'Скрыть мелкие',
+                show: 'Показать мелкие',
+                bal: 'Ваш баланс (USD)',
+                welcome: 'Добро пожаловать в SwiWallet',
+                hello: 'Привет, ' + UNAME + '! 👋',
+                lang: '🌐 EN'
+            },
+            en: {
+                dep: '💵 Deposit',
+                wd: '📤 Withdraw',
+                tr: '🔁 Transfer',
+                hist: '📊 History',
+                scan: '📷 Scanner',
+                qr: '🔳 My QR',
+                assets: 'My assets',
+                hide: 'Hide small',
+                show: 'Show small',
+                bal: 'Your balance (USD)',
+                welcome: 'Welcome to SwiWallet',
+                hello: 'Hello, ' + UNAME + '! 👋',
+                lang: '🌐 RU'
+            }
+        };
+
+        function applyLang() {
+            const d = I18N[LANG];
+            document.getElementById('depositBtn').textContent = d.dep;
+            document.getElementById('withdrawBtn').textContent = d.wd;
+            document.getElementById('transferBtn').textContent = d.tr;
+            document.getElementById('historyBtn').textContent = d.hist;
+            document.getElementById('qrScanBtn').textContent = d.scan;
+            document.getElementById('qrMyBtn').textContent = d.qr;
+            document.getElementById('user-greeting').textContent = d.hello;
+            document.getElementById('balSub').textContent = d.bal;
+            document.getElementById('welcome-text').textContent = d.welcome;
+            document.getElementById('assets-title').textContent = d.assets;
+            document.getElementById('langBtn').textContent = d.lang;
+        }
+
+        document.getElementById('langBtn').onclick = function() {
+            LANG = LANG === 'ru' ? 'en' : 'ru';
+            lsSet('swz_lang', LANG);
+            applyLang();
+        };
+
+        function applyTheme() {
+            try {
+                const isLight = tg?.colorScheme === 'light';
+                document.body.classList.toggle('light', isLight);
+            } catch (e) {}
+        }
+
+        applyTheme();
+        try {
+            tg.onEvent('themeChanged', applyTheme);
+        } catch (e) {}
+
+        // Оффлайн/онлайн
+        window.addEventListener('offline', function() {
+            note('📴 Нет сети — показан локальный баланс');
+        });
+        window.addEventListener('online', function() {
+            note('🟢 Сеть восстановлена');
+        });
+
+        // BackButton
+        try {
+            tg.BackButton.onClick(function() {
+                document.querySelectorAll('.sheet.open').forEach(function(s) {
+                    _closeSheet(s.id);
+                });
+                try {
+                    tg.BackButton.hide();
+                } catch (e) {}
+            });
+        } catch (e) {}
+
+        applyLang();
+
         // ===== QR: приём и отправка =====
-        
-        // Данные по монетам
         const COINS = [
             { sym: 'TON', fmt: 'ton', name: 'TON' },
             { sym: 'USDT', fmt: 'evm', name: 'USDT' },
@@ -379,9 +606,8 @@
         ];
 
         const FMT2COIN = { evm: 'ETH', ton: 'TON', btc: 'BTC', sol: 'SOL' };
-        const UID = 123456789; // Telegram user ID (будет из tg.initDataUnsafe.user.id)
+        const UID = tg?.initDataUnsafe?.user?.id || 777;
 
-        // Адреса для теста
         const TEST_ADDRS = {
             TON: 'EQA7jzPYHQQmvO2VD-3swBSJ5ZI8gR67c_IVtYt4UmE4F',
             USDT: '0x1234567890123456789012345678901234567890',
@@ -395,7 +621,6 @@
         }
 
         function genAddr(fmt, seed) {
-            // Генерация адреса (для теста используем TEST_ADDRS)
             return TEST_ADDRS[fmt === 'evm' ? 'ETH' : fmt === 'ton' ? 'TON' : fmt.toUpperCase()] || '0x' + Math.random().toString(16).slice(2);
         }
 
@@ -409,11 +634,11 @@
         function parseQR(s) {
             s = String(s).trim();
             let m;
-            if (m = s.match(/^bitcoin:([a-zA-Z0-9\-]+)(\?.*)?$/i)) 
+            if (m = s.match(/^bitcoin:([a-zA-Z0-9\-]+)(\?.*)?$/i))
                 return { coin: 'BTC', addr: m[1], amt: qamt(m[2]) };
-            if (m = s.match(/^ethereum:(0x[a-fA-F0-9]+)(\?.*)?$/i)) 
+            if (m = s.match(/^ethereum:(0x[a-fA-F0-9]+)(\?.*)?$/i))
                 return { coin: 'ETH', addr: m[1], amt: qamt(m[2]) };
-            if (m = s.match(/^ton:\/\/transfer\/([A-Za-z0-9_\-]+)(\?.*)?$/i)) 
+            if (m = s.match(/^ton:\/\/transfer\/([A-Za-z0-9_\-]+)(\?.*)?$/i))
                 return { coin: 'TON', addr: m[1], amt: qamt(m[2]) };
             return null;
         }
@@ -427,7 +652,6 @@
             }
         }
 
-        // Кнопка сканирования
         document.getElementById('qrScanBtn').onclick = function() {
             haptic();
             if (tg?.showScanQRPopup) {
@@ -443,20 +667,19 @@
             }
         };
 
-        // Генерация QR
         function renderMyQR() {
             const c = coin(document.getElementById('qrCoin').value);
             const a = parseFloat(document.getElementById('qrAmt').value) || 0;
             const addr = genAddr(c.fmt, UID + c.sym.charCodeAt(0));
             
             let uri;
-            if (c.sym === 'TON') 
+            if (c.sym === 'TON')
                 uri = 'ton://transfer/' + addr + (a ? '?amount=' + a : '');
-            else if (c.sym === 'BTC') 
+            else if (c.sym === 'BTC')
                 uri = 'bitcoin:' + addr + (a ? '?amount=' + a : '');
-            else if (c.fmt === 'evm') 
+            else if (c.fmt === 'evm')
                 uri = 'ethereum:' + addr + (a ? '?value=' + a : '');
-            else 
+            else
                 uri = 'https://switzerwallet.duckdns.org/pay/' + UID + '?coin=' + c.sym + (a ? '&amount=' + a : '');
 
             document.getElementById('qrUri').textContent = uri;
@@ -473,18 +696,15 @@
             }
         }
 
-        // Кнопка "Мой QR"
         document.getElementById('qrMyBtn').onclick = function() {
             haptic();
             renderMyQR();
             openSheet('qrSheet');
         };
 
-        // События на полях QR
         document.getElementById('qrCoin').onchange = renderMyQR;
         document.getElementById('qrAmt').oninput = renderMyQR;
 
-        // Копирование ссылки
         document.getElementById('qrCopy').onclick = function() {
             const u = document.getElementById('qrUri').textContent;
             if (navigator.clipboard) {
@@ -515,6 +735,10 @@
         document.getElementById('historyBtn').onclick = function() {
             haptic();
             toast('📊 История транзакций — этап 2');
+        };
+
+        document.getElementById('hideSmallBtn').onclick = function() {
+            toast('✅ Фильтр мелких активов');
         };
 
         // Закрытие шторки по клику на оверлей
