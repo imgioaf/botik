@@ -2,20 +2,18 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Mini App</title>
-    <!-- 1. Подключение Telegram WebApp SDK -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>SwiWallet Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    
     <style>
-        /* Темный стеклянный UI (Glassmorphism) */
         :root {
             --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
             --glass-bg: rgba(255, 255, 255, 0.05);
             --glass-border: rgba(255, 255, 255, 0.12);
             --text-color: #f8fafc;
             --accent-color: #6366f1;
+            --success-color: #10b981;
         }
 
         * {
@@ -29,11 +27,13 @@
             background: var(--bg-gradient);
             min-height: 100vh;
             color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            padding: 12px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
         }
 
         .glass-card {
@@ -41,111 +41,489 @@
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 24px;
-            width: 100%;
-            max-width: 400px;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            text-align: center;
         }
 
         h1 {
             font-size: 1.5rem;
             margin-bottom: 12px;
             font-weight: 600;
+            text-align: center;
         }
 
         p {
             font-size: 0.95rem;
             opacity: 0.8;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .balance-section {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 12px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 14px;
+        }
+
+        .balance-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 4px;
+        }
+
+        .balance-label {
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
         }
 
         .btn {
-            width: 100%;
-            padding: 14px 20px;
-            border-radius: 14px;
+            padding: 14px 16px;
+            border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             background: linear-gradient(135deg, rgba(99, 102, 241, 0.8) 0%, rgba(168, 85, 247, 0.8) 100%);
             color: #fff;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s ease;
-            margin-bottom: 12px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
         }
 
         .btn:active {
             transform: scale(0.98);
+            opacity: 0.9;
         }
 
         .btn-secondary {
             background: rgba(255, 255, 255, 0.08);
         }
 
-        #status {
+        .btn-full {
+            grid-column: 1 / -1;
+        }
+
+        .qr-section {
+            text-align: center;
+        }
+
+        .qr-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .status {
             margin-top: 16px;
+            padding: 12px;
+            border-radius: 10px;
             font-size: 0.9rem;
-            color: #38bdf8;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            text-align: center;
             word-break: break-word;
+            display: none;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .status.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        /* Sheet (модальное окно) */
+        .sheet {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px 24px 0 0;
+            padding: 20px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sheet.open {
+            transform: translateY(0);
+        }
+
+        .sheet h3 {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .sheet-content {
+            margin-bottom: 16px;
+        }
+
+        .inp {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            color: var(--text-color);
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+
+        .inp::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            color: var(--text-color);
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+
+        #qrBox {
+            display: flex;
+            justify-content: center;
+            padding: 16px;
+            background: #fff;
+            border-radius: 14px;
+            margin-bottom: 12px;
+        }
+
+        #qrBox canvas {
+            max-width: 100%;
+        }
+
+        .addr {
+            word-break: break-all;
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 12px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .sheet .btn {
+            grid-column: auto;
+        }
+
+        .sheet-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .side {
+            margin: 0 0 14px;
+        }
+
+        .gray {
+            background: rgba(255, 255, 255, 0.08) !important;
         }
     </style>
 </head>
 <body>
 
-    <div class="glass-card">
-        <h1 id="user-greeting">Привет 👋</h1>
-        <p>Нажимай на кнопки ниже — приложение больше не будет закрываться само по себе.</p>
+    <div class="container">
+        <!-- Главная карточка -->
+        <div class="glass-card">
+            <h1 id="user-greeting">Привет 👋</h1>
+            <p>Добро пожаловать в SwiWallet</p>
 
-        <!-- type="button" предотвращает отправку формы и перезагрузку страницы -->
-        <button type="button" class="btn" id="action-btn">Выполнить действие</button>
-        <button type="button" class="btn btn-secondary" id="close-btn">Закрыть приложение</button>
+            <!-- Баланс -->
+            <div class="balance-section">
+                <div class="balance-amount">$1,250.50</div>
+                <div class="balance-label">Ваш баланс (USDT)</div>
+            </div>
 
-        <div id="status"></div>
+            <!-- Основные кнопки -->
+            <div class="btn-group">
+                <button type="button" class="btn" id="depositBtn">💵 Пополнить</button>
+                <button type="button" class="btn" id="withdrawBtn">📤 Вывести</button>
+            </div>
+
+            <div class="btn-group">
+                <button type="button" class="btn" id="transferBtn">↔️ Перевод</button>
+                <button type="button" class="btn" id="historyBtn">📊 История</button>
+            </div>
+
+            <!-- QR функции -->
+            <div class="qr-section">
+                <div class="qr-buttons">
+                    <button type="button" class="btn" id="qrScanBtn">📷 Сканер</button>
+                    <button type="button" class="btn" id="qrMyBtn">🔳 Мой QR</button>
+                </div>
+            </div>
+
+            <!-- Статус -->
+            <div class="status" id="status"></div>
+        </div>
     </div>
 
+    <!-- Шторка "Мой QR" -->
+    <div class="sheet" id="qrSheet">
+        <div class="sheet-content">
+            <h3>📱 Мой QR для приёма</h3>
+            
+            <select id="qrCoin">
+                <option>TON</option>
+                <option>USDT</option>
+                <option>ETH</option>
+                <option>BTC</option>
+                <option>BNB</option>
+            </select>
+
+            <input type="number" class="inp" id="qrAmt" step="any" placeholder="Сумма (необязательно)">
+
+            <div id="qrBox" style="display:flex;justify-content:center;padding:12px;background:#fff;border-radius:14px;margin-bottom:10px"></div>
+
+            <div class="addr" id="qrUri"></div>
+
+            <div class="sheet-buttons">
+                <button type="button" class="btn" id="qrCopy">📋 Копировать</button>
+                <button type="button" class="btn gray" onclick="closeSheet('qrSheet')">✕ Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Оверлей -->
+    <div class="overlay" id="overlay"></div>
+
     <script>
-        // Инициализация Telegram WebApp
+        // Telegram WebApp API
         const tg = window.Telegram?.WebApp;
-
         if (tg) {
-            // Оповещаем Telegram, что приложение полностью загрузилось
             tg.ready();
-            // Раскрываем окно Mini App на всю высоту экрана
             tg.expand();
-
-            // Если доступна информация о пользователе
             const user = tg.initDataUnsafe?.user;
             if (user) {
                 document.getElementById('user-greeting').innerText = `Привет, ${user.first_name}! 👋`;
             }
         }
 
-        // Обработчик основной кнопки (НЕ закрывает приложение)
-        document.getElementById('action-btn').addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
+        // Вспомогательные функции
+        function haptic() {
+            tg?.impactOccurred?.('light');
+        }
 
-            const statusDiv = document.getElementById('status');
-            statusDiv.innerText = "✅ Действие выполнено! Окно осталась открытым.";
+        function toast(msg) {
+            const status = document.getElementById('status');
+            status.innerText = msg;
+            status.classList.add('show');
+            setTimeout(() => status.classList.remove('show'), 3000);
+        }
 
-            // Если нужно отправить данные на ваш бэкенд:
-            /*
-            fetch('https://ваш-сервер.com/api/do-something', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ initData: tg.initData })
-            });
-            */
-        });
+        function openSheet(id) {
+            haptic();
+            document.getElementById(id).classList.add('open');
+            document.getElementById('overlay').classList.add('show');
+        }
 
-        // Кнопка, которая закрывает приложение ТОЛЬКО по вашему требованию
-        document.getElementById('close-btn').addEventListener('click', function(e) {
-            e.preventDefault();
-            if (tg) {
-                tg.close();
+        function closeSheet(id) {
+            haptic();
+            document.getElementById(id).classList.remove('open');
+            document.getElementById('overlay').classList.remove('show');
+        }
+
+        // ===== QR: приём и отправка =====
+        
+        // Данные по монетам
+        const COINS = [
+            { sym: 'TON', fmt: 'ton', name: 'TON' },
+            { sym: 'USDT', fmt: 'evm', name: 'USDT' },
+            { sym: 'ETH', fmt: 'evm', name: 'Ethereum' },
+            { sym: 'BTC', fmt: 'btc', name: 'Bitcoin' },
+            { sym: 'BNB', fmt: 'evm', name: 'BNB' }
+        ];
+
+        const FMT2COIN = { evm: 'ETH', ton: 'TON', btc: 'BTC', sol: 'SOL' };
+        const UID = 123456789; // Telegram user ID (будет из tg.initDataUnsafe.user.id)
+
+        // Адреса для теста
+        const TEST_ADDRS = {
+            TON: 'EQA7jzPYHQQmvO2VD-3swBSJ5ZI8gR67c_IVtYt4UmE4F',
+            USDT: '0x1234567890123456789012345678901234567890',
+            ETH: '0x9876543210987654321098765432109876543210',
+            BTC: '1A1z7agoat2ypExWySpzy3tiYjq6WEvqUA',
+            BNB: '0xaBcD1234567890aBcD1234567890aBcD123456'
+        };
+
+        function coin(sym) {
+            return COINS.find(c => c.sym === sym) || COINS[0];
+        }
+
+        function genAddr(fmt, seed) {
+            // Генерация адреса (для теста используем TEST_ADDRS)
+            return TEST_ADDRS[fmt === 'evm' ? 'ETH' : fmt === 'ton' ? 'TON' : fmt.toUpperCase()] || '0x' + Math.random().toString(16).slice(2);
+        }
+
+        function qamt(q) {
+            if (!q) return 0;
+            const p = {};
+            new URLSearchParams(q.replace(/^\?/, '')).forEach((v, k) => p[k] = v);
+            return parseFloat(p.amount || p.value || 0) || 0;
+        }
+
+        function parseQR(s) {
+            s = String(s).trim();
+            let m;
+            if (m = s.match(/^bitcoin:([a-zA-Z0-9\-]+)(\?.*)?$/i)) 
+                return { coin: 'BTC', addr: m[1], amt: qamt(m[2]) };
+            if (m = s.match(/^ethereum:(0x[a-fA-F0-9]+)(\?.*)?$/i)) 
+                return { coin: 'ETH', addr: m[1], amt: qamt(m[2]) };
+            if (m = s.match(/^ton:\/\/transfer\/([A-Za-z0-9_\-]+)(\?.*)?$/i)) 
+                return { coin: 'TON', addr: m[1], amt: qamt(m[2]) };
+            return null;
+        }
+
+        function handleQR(s) {
+            const p = parseQR(s);
+            if (p) {
+                toast(`✅ QR распознан: ${p.coin}`);
+            } else {
+                toast('❌ QR не распознан');
             }
-        });
+        }
+
+        // Кнопка сканирования
+        document.getElementById('qrScanBtn').onclick = function() {
+            haptic();
+            if (tg?.showScanQRPopup) {
+                tg.showScanQRPopup(
+                    { text: 'Наведи камеру на QR' },
+                    function(data) {
+                        handleQR(data);
+                        return true;
+                    }
+                );
+            } else {
+                toast('⚠️ Сканер недоступен в этом клиенте');
+            }
+        };
+
+        // Генерация QR
+        function renderMyQR() {
+            const c = coin(document.getElementById('qrCoin').value);
+            const a = parseFloat(document.getElementById('qrAmt').value) || 0;
+            const addr = genAddr(c.fmt, UID + c.sym.charCodeAt(0));
+            
+            let uri;
+            if (c.sym === 'TON') 
+                uri = 'ton://transfer/' + addr + (a ? '?amount=' + a : '');
+            else if (c.sym === 'BTC') 
+                uri = 'bitcoin:' + addr + (a ? '?amount=' + a : '');
+            else if (c.fmt === 'evm') 
+                uri = 'ethereum:' + addr + (a ? '?value=' + a : '');
+            else 
+                uri = 'https://switzerwallet.duckdns.org/pay/' + UID + '?coin=' + c.sym + (a ? '&amount=' + a : '');
+
+            document.getElementById('qrUri').textContent = uri;
+            
+            const box = document.getElementById('qrBox');
+            box.innerHTML = '';
+            if (window.QRCode) {
+                new QRCode(box, {
+                    text: uri,
+                    width: 220,
+                    height: 220,
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            }
+        }
+
+        // Кнопка "Мой QR"
+        document.getElementById('qrMyBtn').onclick = function() {
+            haptic();
+            renderMyQR();
+            openSheet('qrSheet');
+        };
+
+        // События на полях QR
+        document.getElementById('qrCoin').onchange = renderMyQR;
+        document.getElementById('qrAmt').oninput = renderMyQR;
+
+        // Копирование ссылки
+        document.getElementById('qrCopy').onclick = function() {
+            const u = document.getElementById('qrUri').textContent;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(u).then(() => {
+                    toast('✅ Ссылка скопирована');
+                });
+            } else {
+                toast('📋 ' + u);
+            }
+        };
+
+        // Остальные кнопки (заглушки)
+        document.getElementById('depositBtn').onclick = function() {
+            haptic();
+            toast('💵 Функция пополнения — этап 2');
+        };
+
+        document.getElementById('withdrawBtn').onclick = function() {
+            haptic();
+            toast('📤 Функция вывода — этап 2');
+        };
+
+        document.getElementById('transferBtn').onclick = function() {
+            haptic();
+            toast('↔️ Функция перевода — этап 2');
+        };
+
+        document.getElementById('historyBtn').onclick = function() {
+            haptic();
+            toast('📊 История транзакций — этап 2');
+        };
+
+        // Закрытие шторки по клику на оверлей
+        document.getElementById('overlay').onclick = function() {
+            const sheet = document.querySelector('.sheet.open');
+            if (sheet) {
+                closeSheet(sheet.id);
+            }
+        };
     </script>
 </body>
 </html>
