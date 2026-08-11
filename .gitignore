@@ -1,0 +1,69 @@
+# Окружение
+.env
+.env.local
+.env.*.local
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Node
+node_modules/
+package-lock.json
+yarn.lock
+.next/
+out/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+wallet.db
+switzerbot.db
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Бэкапы
+backups/
+*.bak
+*.backup
+
+# Тестовые файлы
+test_*.py
+*_test.py
+.pytest_cache/
